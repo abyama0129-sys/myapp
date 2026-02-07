@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2等無人航空機操縦士 マスターアプリ</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #eef2f3; margin: 0; color: #333; }
+        .card { width: 340px; height: 220px; perspective: 1000px; cursor: pointer; margin-bottom: 30px; }
+        .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.5s; transform-style: preserve-3d; }
+        .card.is-flipped .card-inner { transform: rotateY(180deg); }
+        .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); padding: 25px; box-sizing: border-box; background: white; }
+        .back { background: #4a90e2; color: white; transform: rotateY(180deg); }
+        .category { font-size: 0.75rem; font-weight: bold; color: #4a90e2; text-transform: uppercase; margin-bottom: 10px; }
+        .back .category { color: #e0e0e0; }
+        h2 { margin: 10px 0; font-size: 1.6rem; }
+        .controls { display: flex; gap: 10px; align-items: center; }
+        button { padding: 12px 20px; border: none; border-radius: 50px; background: #333; color: white; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #555; transform: translateY(-2px); }
+        .shuffle-btn { background: #ff9800; }
+        .counter { margin-top: 15px; font-size: 0.9rem; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="card">
+    <div class="card-inner">
+        <div class="front">
+            <div class="category" id="cat-front">CATEGORY</div>
+            <h2 id="word-display">読み込み中...</h2>
+            <p style="font-size: 0.7rem; color: #bbb;">タップで回答を表示</p>
+        </div>
+        <div class="back">
+            <div class="category">解説</div>
+            <p id="meaning-display" style="line-height: 1.6;">意味</p>
+        </div>
+    </div>
+</div>
+
+<div class="controls">
+    <button onclick="prevCard()">前へ</button>
+    <button class="shuffle-btn" onclick="shuffleCards()">シャッフル</button>
+    <button onclick="nextCard()">次へ</button>
+</div>
+
+<div class="counter" id="counter">1 / 5</div>
+
+<script>
+    // 試験に出る重要単語リスト（追加済み！）
+    let words = [
+        { cat: "機体動作", word: "ピッチ (Pitch)", meaning: "機体の機首を上下に振る動き。エレベーター操作に対応。" },
+        { cat: "機体動作", word: "ロール (Roll)", meaning: "機体を左右に傾ける動き。エルロン操作に対応。" },
+        { cat: "機体動作", word: "ヨー (Yaw)", meaning: "機体をその場で左右に回転させる動き。ラダー操作に対応。" },
+        { cat: "ルール", word: "目視外飛行", meaning: "補助者なしで、操縦者が肉眼で機体を確認できない状態で飛行させること（特定飛行）。" },
+        { cat: "運用", word: "フェールセーフ", meaning: "故障や通信途絶時に、自動でRTH（帰還）や着陸を行う安全機能。" },
+        { cat: "気象", word: "ダウンバースト", meaning: "積乱雲から吹き下ろす強力な気流。墜落の危険性が高い。" },
+        { cat: "法律", word: "登録記号", meaning: "機体に表示義務がある「JU」から始まる番号。有効期間は3年。" }
+    ];
+
+    let currentIndex = 0;
+    const card = document.getElementById('card');
+
+    function updateCard() {
+        card.classList.remove('is-flipped');
+        setTimeout(() => {
+            document.getElementById('cat-front').innerText = words[currentIndex].cat;
+            document.getElementById('word-display').innerText = words[currentIndex].word;
+            document.getElementById('meaning-display').innerText = words[currentIndex].meaning;
+            document.getElementById('counter').innerText = `${currentIndex + 1} / ${words.length}`;
+        }, 150);
+    }
+
+    function shuffleCards() {
+        for (let i = words.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [words[i], words[j]] = [words[j], words[i]];
+        }
+        currentIndex = 0;
+        updateCard();
+        alert("単語をシャッフルしました！");
+    }
+
+    card.addEventListener('click', () => card.classList.toggle('is-flipped'));
+    function nextCard() { currentIndex = (currentIndex + 1) % words.length; updateCard(); }
+    function prevCard() { currentIndex = (currentIndex - 1 + words.length) % words.length; updateCard(); }
+
+    updateCard();
+</script>
+</body>
+</html>
